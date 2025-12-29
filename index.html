@@ -19,28 +19,26 @@
 
   let total = 0;
 
-  function addBeer() {
-    const name = document.getElementById("name").value || "Ukendt";
-
-    fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        name: name,
-        beers: 1
-      })
-    });
-
-    total += 1;
-    document.getElementById("total").textContent = total;
-  }
-
+  function updateTotal() {
   fetch(API_URL)
     .then(r => r.json())
     .then(data => {
-      total = data.reduce((sum, row) => sum + row[2], 0);
+      total = data.reduce((s, r) => s + Number(r[2]), 0);
       document.getElementById("total").textContent = total;
     });
-</script>
+  }
+
+  function addBeer() {
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ name, beers: 1 })
+    }).then(updateTotal);
+  }
+
+  updateTotal();
+
+    
+  </script>
 
 
 </body>
