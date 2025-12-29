@@ -29,8 +29,9 @@
   }
 
   function addBeer() {
-  total += 1; <!-- updates faster than API call --> 
-    
+  total += 1;
+  document.getElementById("total").textContent = total; <!-- updates faster than API call --> 
+
   fetch(API_URL, {
     method: "POST",
     body: JSON.stringify({
