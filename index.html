@@ -1,20 +1,26 @@
-<!DOCTYPE html>
-<html lang="da">
-<head>
-  <meta charset="UTF-8">
-  <title>Fadøl Tracker 🍺</title>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      text-align: center;
-      margin-top: 4rem;
-    }
-  </style>
-</head>
 <body>
 
   <h1>🍺 Fadøl Tracker</h1>
-  <p>Hjemmesiden virker!</p>
+
+  <div>
+    <input id="name" placeholder="Dit navn">
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <button onclick="addBeer()">+1 fadøl</button>
+  </div>
+
+  <h2 style="margin-top: 2rem;">
+    Total fadøl: <span id="total">0</span>
+  </h2>
+
+  <script>
+    let total = 0;
+
+    function addBeer() {
+      total += 1;
+      document.getElementById("total").textContent = total;
+    }
+  </script>
 
 </body>
-</html>
