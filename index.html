@@ -64,6 +64,29 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
+  
+  #chart-container {
+    max-width: 300px;      /* ca. halv bredde visuelt */
+    margin: 1rem auto;
+  }
+  @media (min-width: 768px) {
+    #chart-container {
+      max-width: 1000px;
+    }
+  }
+  @media (max-width: 480px) {
+  body {
+    font-size: 1.2rem;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+}
 
 </style>
 
@@ -80,7 +103,9 @@
   <ul id="leaderboard"></ul>
 
   <h3>📈 Fadøl over tid</h3>
-  <canvas id="beerChart" width="400" height="200"></canvas>
+  <div id="chart-container">
+    <canvas id="beerChart"></canvas>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
