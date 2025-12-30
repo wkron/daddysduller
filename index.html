@@ -1,10 +1,21 @@
 <body>
+  <div id="app">
 
   <h1>🍺 Fadøl Tracker</h1>
 
   <h3>Hvem er du?</h3>
   <div id="people"></div>
   <style>
+  #app {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  @media (min-width: 768px) {
+  #app {
+    max-width: 700px;
+  }
+}
   #people {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -18,8 +29,8 @@
     font-size: 1rem;
     cursor: pointer;
   }
-
-  .active {
+  
+    .active {
     background: #222;
     color: white;
   }
@@ -238,5 +249,5 @@
     
   </script>
 
-
+</div>
 </body>
