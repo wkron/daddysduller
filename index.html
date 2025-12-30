@@ -30,14 +30,17 @@
 
   let chart; // global reference
 
+  const savedName = localStorage.getItem("name");
+  if (savedName) document.getElementById("name").value = savedName;
+    
   function parseCSV(text) {
   return text
     .trim()
     .split("\n")
     .slice(1) // skip header
     .map(row => row.split(","));
-}
-
+  }
+  
     
   function updateFromServer() {
   fetch(CSV_URL)
@@ -61,22 +64,33 @@
       const leaderboard = document.getElementById("leaderboard");
       leaderboard.innerHTML = "";
 
+      const medals = ["🥇", "🥈", "🥉"];
+        
       Object.entries(perPerson)
         .sort((a, b) => b[1] - a[1])
-        .forEach(([name, beers]) => {
+        .slice(0, 5)              // top 5
+        .forEach(([name, beers], i) => {
           const li = document.createElement("li");
-          li.textContent = `${name}: ${beers}`;
+          const medal = medals[i] || "";
+          li.textContent = `${medal} ${name}: ${beers}`;
           leaderboard.appendChild(li);
-        });
-
-      // GRAF (kumulativ)
-      let sum = 0;
-      const cumulative = rows.map(r => {
-        sum += Number(r[2]);
-        return sum;
       });
 
-      const times = rows.map(r => r[0]);
+
+      // GRAF (kumulativ)
+     const perDay = {};
+
+      rows.forEach(r => {
+        const date = r[0].slice(0, 10); // YYYY-MM-DD
+        perDay[date] = (perDay[date] || 0) + Number(r[2]);
+      });
+
+      const days = Object.keys(perDay).sort();
+      let sum = 0;
+      const cumulative = days.map(d => {
+        sum += perDay[d];
+        return sum;
+      });
 
       if (chart) chart.destroy();
       chart = new Chart(
@@ -84,7 +98,7 @@
         {
           type: "line",
           data: {
-            labels: times,
+            labels: days,
             datasets: [{
               label: "Total fadøl",
               data: cumulative,
@@ -104,6 +118,8 @@
 
 
   function addBeer() {
+    const name = nameInput.value.trim() || "Ukendt";
+    localStorage.setItem("name", name);
     setTotal(total + 1); // optimistic UI
 
     fetch(API_URL, {
