@@ -2,12 +2,63 @@
 
   <h1>🍺 Fadøl Tracker</h1>
 
-  <div>
-    <input id="name" placeholder="Dit navn">
-  </div>
+  <h3>Hvem er du?</h3>
+  <div id="people"></div>
+  <style>
+  #people {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem;
+    max-width: 300px;
+    margin: 1rem auto;
+  }
 
-  <div style="margin-top: 1rem;">
-    <button onclick="addBeer()">+1 fadøl</button>
+  .person-btn {
+    padding: 0.6rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .active {
+    background: #222;
+    color: white;
+  }
+  #add-beer-container {
+  max-width: 300px;          /* samme som #people */
+  margin: 1.5rem auto;
+  }
+
+  #add-beer-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.4rem;
+    font-weight: bold;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+
+    background: linear-gradient(135deg, #f6c453, #f09c2d);
+    color: #222;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+  }
+
+  #add-beer-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  #add-beer-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+</style>
+
+
+  <div id="add-beer-container">
+    <button id="add-beer-btn" onclick="addBeer()">🍺 +1 fadøl</button>
   </div>
 
   <h2 style="margin-top: 2rem;">
@@ -28,10 +79,54 @@
     
   let total = 0;
 
+  const PEOPLE = [
+    "William",
+    "Nikolai",
+    "Lise",
+    "Mille",
+    "Frigg",
+    "Augusta",
+    "Julle",
+    "Milla",
+    "Malthe",
+    "Baldur"
+  ];
+
+  let currentName = localStorage.getItem("name") || null;
+
+  const peopleDiv = document.getElementById("people");
+
+  function renderPeople() {
+    peopleDiv.innerHTML = "";
+
+    PEOPLE.forEach(name => {
+      const btn = document.createElement("button");
+      btn.textContent = name;
+      btn.className = "person-btn";
+
+      if (name === currentName) {
+        btn.classList.add("active");
+      }
+
+      btn.onclick = () => {
+        currentName = name;
+        localStorage.setItem("name", name);
+        renderPeople();
+      };
+
+      peopleDiv.appendChild(btn);
+    });
+  }
+
+
+  renderPeople();
+  updateFromServer();
+
   let chart; // global reference
 
-  const savedName = localStorage.getItem("name");
-  if (savedName) document.getElementById("name").value = savedName;
+  // const nameInput = document.getElementById("name");
+  // const savedName = localStorage.getItem("name");
+  // if (savedName) nameInput.value = savedName;
     
   function parseCSV(text) {
   return text
@@ -43,72 +138,73 @@
   
     
   function updateFromServer() {
-  fetch(CSV_URL)
-    .then(r => r.text())
-    .then(text => {
-      const rows = parseCSV(text);
+    fetch(CSV_URL)
+      .then(r => r.text())
+      .then(text => {
+        const rows = parseCSV(text);
 
-      // TOTAL
-      const total =
-        rows.reduce((s, r) => s + Number(r[2]), 0);
-      setTotal(total);
+        // TOTAL
+        const total =
+          rows.reduce((s, r) => s + Number(r[2]), 0);
+        setTotal(total);
 
-      // LEADERBOARD
-      const perPerson = {};
-      rows.forEach(r => {
-        const name = r[1];
-        const beers = Number(r[2]);
-        perPerson[name] = (perPerson[name] || 0) + beers;
-      });
+        // LEADERBOARD
+        const perPerson = {};
+        rows.forEach(r => {
+          const name = r[1];
+          const beers = Number(r[2]);
+          perPerson[name] = (perPerson[name] || 0) + beers;
+        });
 
-      const leaderboard = document.getElementById("leaderboard");
-      leaderboard.innerHTML = "";
+        const leaderboard = document.getElementById("leaderboard");
+        leaderboard.innerHTML = "";
 
-      const medals = ["🥇", "🥈", "🥉"];
-        
-      Object.entries(perPerson)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)              // top 5
-        .forEach(([name, beers], i) => {
-          const li = document.createElement("li");
-          const medal = medals[i] || "";
-          li.textContent = `${medal} ${name}: ${beers}`;
-          leaderboard.appendChild(li);
-      });
+        const medals = ["🥇", "🥈", "🥉"];
+          
+        Object.entries(perPerson)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)              // top 5
+          .forEach(([name, beers], i) => {
+            const li = document.createElement("li");
+            const medal = medals[i] || "";
+            li.textContent = `${medal} ${name}: ${beers}`;
+            leaderboard.appendChild(li);
+        });
 
 
-      // GRAF (kumulativ)
-     const perDay = {};
+        // GRAF (kumulativ)
+        const perDay = {};
 
-      rows.forEach(r => {
-        const date = r[0].slice(0, 10); // YYYY-MM-DD
-        perDay[date] = (perDay[date] || 0) + Number(r[2]);
-      });
+        rows.forEach(r => {
+          const date = r[0].slice(0, 10); // YYYY-MM-DD
+          perDay[date] = (perDay[date] || 0) + Number(r[2]);
+        });
 
-      const days = Object.keys(perDay).sort();
-      let sum = 0;
-      const cumulative = days.map(d => {
-        sum += perDay[d];
-        return sum;
-      });
+        const days = Object.keys(perDay).sort();
+        let sum = 0;
+        const cumulative = days.map(d => {
+          sum += perDay[d];
+          return sum;
+        });
 
-      if (chart) chart.destroy();
-      chart = new Chart(
-        document.getElementById("beerChart"),
-        {
-          type: "line",
-          data: {
-            labels: days,
-            datasets: [{
-              label: "Total fadøl",
-              data: cumulative,
-              tension: 0.3
-            }]
+        if (chart) chart.destroy();
+        chart = new Chart(
+          document.getElementById("beerChart"),
+          {
+            type: "line",
+            data: {
+              labels: days,
+              datasets: [{
+                label: "Total fadøl",
+                data: cumulative,
+                tension: 0.3
+              }]
+            }
           }
-        }
-      );
+        );
     });
   }
+  
 
   
   function setTotal(value) {
@@ -118,14 +214,18 @@
 
 
   function addBeer() {
-    const name = nameInput.value.trim() || "Ukendt";
-    localStorage.setItem("name", name);
+    if (!currentName) {
+      alert("Vælg dit navn først 🍺");
+      return;
+    }
+
+  
     setTotal(total + 1); // optimistic UI
 
     fetch(API_URL, {
       method: "POST",
       body: JSON.stringify({
-        name: document.getElementById("name").value.trim() || "Ukendt",
+        name: currentName,
         beers: 1
       })
     }).then(updateFromServer);
@@ -133,7 +233,6 @@
 
 
 
-  updateFromServer();
 
 
     
