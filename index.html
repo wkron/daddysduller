@@ -24,52 +24,64 @@
 
   <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbxcRLqrkpSmbjjhscg0kJVNKzmgDhYZmhFW611biTZCNvIycpVac_7iAedzJQWMaU3e/exec";
-
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/1Nz0i7Q9p61VT15Ia4E5muW4npkYCniaKVtAWBzTnzP8/export?format=csv&gid=0"
+    
   let total = 0;
 
   let chart; // global reference
 
+  function parseCSV(text) {
+  return text
+    .trim()
+    .split("\n")
+    .slice(1) // skip header
+    .map(row => row.split(","));
+}
+
+    
   function updateFromServer() {
-    fetch(API_URL)
-      .then(r => r.json())
-      .then(rows => {
-        // --- TOTAL ---
-        const total = rows.reduce((s, r) => s + Number(r[2]), 0);
-        setTotal(total);
+  fetch(CSV_URL)
+    .then(r => r.text())
+    .then(text => {
+      const rows = parseCSV(text);
 
-        // --- LEADERBOARD ---
-        const perPerson = {};
-        rows.forEach(r => {
-          const name = r[1];
-          const beers = Number(r[2]);
-          perPerson[name] = (perPerson[name] || 0) + beers;
+      // TOTAL
+      const total =
+        rows.reduce((s, r) => s + Number(r[2]), 0);
+      setTotal(total);
+
+      // LEADERBOARD
+      const perPerson = {};
+      rows.forEach(r => {
+        const name = r[1];
+        const beers = Number(r[2]);
+        perPerson[name] = (perPerson[name] || 0) + beers;
+      });
+
+      const leaderboard = document.getElementById("leaderboard");
+      leaderboard.innerHTML = "";
+
+      Object.entries(perPerson)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([name, beers]) => {
+          const li = document.createElement("li");
+          li.textContent = `${name}: ${beers}`;
+          leaderboard.appendChild(li);
         });
 
-        const leaderboard = document.getElementById("leaderboard");
-        leaderboard.innerHTML = "";
+      // GRAF (kumulativ)
+      let sum = 0;
+      const cumulative = rows.map(r => {
+        sum += Number(r[2]);
+        return sum;
+      });
 
-        Object.entries(perPerson)
-          .sort((a, b) => b[1] - a[1])
-          .forEach(([name, beers]) => {
-            const li = document.createElement("li");
-            li.textContent = `${name}: ${beers}`;
-            leaderboard.appendChild(li);
-          });
+      const times = rows.map(r => r[0]);
 
-        // --- GRAF ---
-        const times = rows.map(r => new Date(r[0]));
-        const cumulative = [];
-        let sum = 0;
-        rows.forEach(r => {
-          sum += Number(r[2]);
-          cumulative.push(sum);
-        });
-
-        const ctx = document.getElementById("beerChart").getContext("2d");
-
-        if (chart) chart.destroy();
-
-        chart = new Chart(ctx, {
+      if (chart) chart.destroy();
+      chart = new Chart(
+        document.getElementById("beerChart"),
+        {
           type: "line",
           data: {
             labels: times,
@@ -79,9 +91,11 @@
               tension: 0.3
             }]
           }
-        });
-      });
+        }
+      );
+    });
   }
+
   
   function setTotal(value) {
     total = value;
