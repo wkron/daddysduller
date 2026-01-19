@@ -1,285 +1,668 @@
+<!DOCTYPE html>
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>🍺 Fadøl Tracker</title>
+  <title>Fadøl Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍺</text></svg>">
+  <style>
+    #app {
+      max-width: 360px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    @media (min-width: 768px) {
+      #app {
+        max-width: 720px;
+      }
+    }
+    #people {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.5rem;
+      max-width: 300px;
+      margin: 1rem auto;
+    }
+
+    .person-btn {
+      padding: 0.6rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 6px;
+    }
+    
+    .person-btn.active {
+      background: #222;
+      color: white;
+      border-color: #222;
+    }
+    
+    #add-beer-container {
+      max-width: 300px;
+      margin: 1.5rem auto;
+    }
+
+    #add-beer-btn {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.4rem;
+      font-weight: bold;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f6c453, #f09c2d);
+      color: #222;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transition: transform 0.05s ease, box-shadow 0.05s ease;
+    }
+
+    #add-beer-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    #add-beer-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    #chart-container {
+      max-width: 300px;
+      margin: 1rem auto;
+      position: relative;
+      height: 300px;
+    }
+    
+    @media (min-width: 768px) {
+      #chart-container {
+        max-width: 1000px;
+        height: 500px;
+      }
+    }
+
+    #chart-controls {
+      max-width: 300px;
+      margin: 1rem auto;
+      padding: 0.75rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+
+    @media (min-width: 768px) {
+      #chart-controls {
+        max-width: 1000px;
+      }
+    }
+
+    .control-group {
+      margin-bottom: 0.75rem;
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .control-group label {
+      display: block;
+      font-weight: normal;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .toggle-btn {
+      padding: 0.5rem 1rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .toggle-btn.active {
+      background: #222;
+      color: white;
+      border-color: #222;
+    }
+
+    .person-toggle {
+      display: inline-block;
+    }
+
+    #rename-container {
+      max-width: 300px;
+      margin: 2rem auto;
+      text-align: center;
+    }
+
+    #rename-btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+      border: 1px solid #ccc;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #rename-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #rename-modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .rename-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .rename-row label {
+      flex: 0 0 80px;
+      font-size: 0.9rem;
+    }
+
+    .rename-row input {
+      flex: 1;
+      padding: 0.4rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .modal-buttons .save-btn {
+      background: #222;
+      color: white;
+    }
+
+    .modal-buttons .cancel-btn {
+      background: #ddd;
+      color: #222;
+    }
+  </style>
 </head>
-
-
 <body>
   <div id="app">
+    <h1>🍺 Fadøl Tracker</h1>
 
-  <h1>🍺 Fadøl Tracker</h1>
+    <h3>Vælg navn</h3>
+    <div id="people"></div>
 
-  <h3>Vælg navn</h3>
-  <div id="people"></div>
-  <style>
-  #app {
-    max-width: 360px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-  @media (min-width: 768px) {
-  #app {
-    max-width: 720px;
-  }
-  }
-  #people {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.5rem;
-    max-width: 300px;
-    margin: 1rem auto;
-  }
+    <div id="add-beer-container">
+      <button id="add-beer-btn" onclick="addBeer()">🍺 +1 fadøl</button>
+    </div>
 
-  .person-btn {
-    padding: 0.6rem;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-  
-    .active {
-    background: #222;
-    color: white;
-  }
-  #add-beer-container {
-  max-width: 300px;          /* samme som #people */
-  margin: 1.5rem auto;
-  }
+    <h2 style="margin-top: 2rem;">
+      Total fadøl: <span id="total">..⏳..</span>
+    </h2>
 
-  #add-beer-btn {
-    width: 100%;
-    padding: 1rem;
-    font-size: 1.4rem;
-    font-weight: bold;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
+    <h3>🏆 Leaderboard</h3>
+    <ul id="leaderboard"></ul>
 
-    background: linear-gradient(135deg, #f6c453, #f09c2d);
-    color: #222;
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    transition: transform 0.05s ease, box-shadow 0.05s ease;
-  }
-
-  #add-beer-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  }
-
-  #add-beer-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  #chart-container {
-    max-width: 300px;      /* ca. halv bredde visuelt */
-    margin: 1rem auto;
-  }
-  @media (min-width: 768px) {
-    #chart-container {
-      max-width: 1000px;
-    }
-  }
-  /* @media (max-width: 540px) {
-  body {
-    font-size: 1.2rem;
-  }
-
-  h1 {
-    font-size: 2.2rem;
-  }
-
-  h2 {
-    font-size: 1.6rem;
-  }
-} */
-
-</style>
-
-
-  <div id="add-beer-container">
-    <button id="add-beer-btn" onclick="addBeer()">🍺 +1 fadøl</button>
-  </div>
-
-  <h2 style="margin-top: 2rem;">
-    Total fadøl: <span id="total">..⏳..</span>
-  </h2>
-
-  <h3>🏆 Leaderboard</h3>
-  <ul id="leaderboard"></ul>
-
-  <h3>📈 Fadøl over tid</h3>
-  <div id="chart-container">
-    <canvas id="beerChart"></canvas>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxcRLqrkpSmbjjhscg0kJVNKzmgDhYZmhFW611biTZCNvIycpVac_7iAedzJQWMaU3e/exec";
-  const CSV_URL = "https://docs.google.com/spreadsheets/d/1Nz0i7Q9p61VT15Ia4E5muW4npkYCniaKVtAWBzTnzP8/export?format=csv&gid=0"
+    <h3>📈 Fadøl over tid</h3>
     
-  let total = 0;
+    <div id="chart-container">
+      <canvas id="beerChart"></canvas>
+    </div>
 
-  const PEOPLE = [
-    "Augusta",
-    "Baldur",
-    "Frigg",
-    "Julle",
-    "Lise",
-    "Malthe",
-    "Milla",
-    "Mille",
-    "Nikolai",
-    "William"
-  ];
+    <div id="chart-controls">
+      <div class="control-group">
+        <button class="toggle-btn active" onclick="setChartType('cumulative')">Kumulativ</button>
+        <button class="toggle-btn" onclick="setChartType('daily')">Per dag</button>
+      </div>
+      
+      <div class="control-group">
+        <label>Vis data:</label>
+        <button class="toggle-btn" id="show-total-btn" onclick="toggleTotal()">Total</button>
+        <div id="person-toggles" style="display: inline;"></div>
+      </div>
+    </div>
 
-  let currentName = localStorage.getItem("name") || null;
+    <div id="rename-container">
+      <button id="rename-btn" onclick="openRenameModal()">✏️ Rediger navne</button>
+    </div>
 
-  const peopleDiv = document.getElementById("people");
+    <div id="rename-modal">
+      <div class="modal-content">
+        <h3 style="margin-top: 0;">Rediger navne</h3>
+        <div id="rename-inputs"></div>
+        <div class="modal-buttons">
+          <button class="cancel-btn" onclick="closeRenameModal()">Annuller</button>
+          <button class="save-btn" onclick="saveRenames()">Gem</button>
+        </div>
+      </div>
+    </div>
 
-  function renderPeople() {
-    peopleDiv.innerHTML = "";
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const API_URL = "https://script.google.com/macros/s/AKfycbxcRLqrkpSmbjjhscg0kJVNKzmgDhYZmhFW611biTZCNvIycpVac_7iAedzJQWMaU3e/exec";
+      const CSV_URL = "https://docs.google.com/spreadsheets/d/1Nz0i7Q9p61VT15Ia4E5muW4npkYCniaKVtAWBzTnzP8/export?format=csv&gid=0";
+      
+      let total = 0;
+      let chartType = 'cumulative';
+      let selectedPeople = new Set();
+      let showTotal = false;
+      let rawData = [];
+      let displayNames = {};
 
-    PEOPLE.forEach(name => {
-      const btn = document.createElement("button");
-      btn.textContent = name;
-      btn.className = "person-btn";
+      const PEOPLE = [
+        "Augusta", "Baldur", "Frigg", "Julle", "Lise",
+        "Malthe", "Milla", "Mille", "Nikolai", "William"
+      ];
 
-      if (name === currentName) {
-        btn.classList.add("active");
+      const COLORS = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+        '#FF9F40', '#E74C3C', '#95A5A6', '#2ECC71', '#E67E22'
+      ];
+
+      let currentName = localStorage.getItem("name") || null;
+      let chart;
+
+      // Load display names from localStorage
+      function loadDisplayNames() {
+        const saved = localStorage.getItem("displayNames");
+        if (saved) {
+          displayNames = JSON.parse(saved);
+        } else {
+          // Initialize with original names
+          PEOPLE.forEach(name => {
+            displayNames[name] = name;
+          });
+        }
       }
 
-      btn.onclick = () => {
-        currentName = name;
-        localStorage.setItem("name", name);
-        renderPeople();
-      };
+      function saveDisplayNames() {
+        localStorage.setItem("displayNames", JSON.stringify(displayNames));
+      }
 
-      peopleDiv.appendChild(btn);
-    });
-  }
+      function getDisplayName(dbName) {
+        return displayNames[dbName] || dbName;
+      }
 
+      loadDisplayNames();
 
-  renderPeople();
-  updateFromServer();
+      const peopleDiv = document.getElementById("people");
 
-  let chart; // global reference
-
-  // const nameInput = document.getElementById("name");
-  // const savedName = localStorage.getItem("name");
-  // if (savedName) nameInput.value = savedName;
-    
-  function parseCSV(text) {
-  return text
-    .trim()
-    .split("\n")
-    .slice(1) // skip header
-    .map(row => row.split(","));
-  }
-  
-    
-  function updateFromServer() {
-    fetch(CSV_URL)
-      .then(r => r.text())
-      .then(text => {
-        const rows = parseCSV(text);
-
-        // TOTAL
-        const total =
-          rows.reduce((s, r) => s + Number(r[2]), 0);
-        setTotal(total);
-
-        // LEADERBOARD
-        const perPerson = {};
-        rows.forEach(r => {
-          const name = r[1];
-          const beers = Number(r[2]);
-          perPerson[name] = (perPerson[name] || 0) + beers;
+      function renderPeople() {
+        peopleDiv.innerHTML = "";
+        PEOPLE.forEach(name => {
+          const btn = document.createElement("button");
+          btn.textContent = getDisplayName(name);
+          btn.className = "person-btn";
+          if (name === currentName) {
+            btn.classList.add("active");
+          }
+          btn.onclick = () => {
+            currentName = name;
+            localStorage.setItem("name", name);
+            renderPeople();
+          };
+          peopleDiv.appendChild(btn);
         });
+      }
 
-        const leaderboard = document.getElementById("leaderboard");
-        leaderboard.innerHTML = "";
-
-        const medals = ["🥇", "🥈", "🥉"];
-          
-        Object.entries(perPerson)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)              // top 5
-          .forEach(([name, beers], i) => {
-            const li = document.createElement("li");
-            const medal = medals[i] || "";
-            li.textContent = `${medal} ${name}: ${beers}`;
-            leaderboard.appendChild(li);
+      function renderPersonToggles() {
+        const container = document.getElementById("person-toggles");
+        container.innerHTML = "";
+        
+        PEOPLE.forEach(name => {
+          const btn = document.createElement("button");
+          btn.textContent = getDisplayName(name);
+          btn.className = "toggle-btn person-toggle";
+          if (selectedPeople.has(name)) {
+            btn.classList.add("active");
+          }
+          btn.onclick = () => togglePerson(name);
+          container.appendChild(btn);
         });
+      }
 
+      function togglePerson(name) {
+        if (selectedPeople.has(name)) {
+          selectedPeople.delete(name);
+        } else {
+          selectedPeople.add(name);
+        }
+        renderPersonToggles();
+        updateChart();
+      }
 
-        // GRAF (kumulativ)
-        const perDay = {};
+      function toggleTotal() {
+        showTotal = !showTotal;
+        const btn = document.getElementById('show-total-btn');
+        if (showTotal) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+        updateChart();
+      }
 
-        rows.forEach(r => {
-          const date = r[0].slice(0, 10); // YYYY-MM-DD
-          perDay[date] = (perDay[date] || 0) + Number(r[2]);
+      function setChartType(type) {
+        chartType = type;
+        document.querySelectorAll('#chart-controls .control-group:first-child .toggle-btn').forEach(btn => {
+          btn.classList.remove('active');
         });
+        event.target.classList.add('active');
+        updateChart();
+      }
 
-        const days = Object.keys(perDay).sort();
-        let sum = 0;
-        const cumulative = days.map(d => {
-          sum += perDay[d];
-          return sum;
-        });
+      function parseCSV(text) {
+        return text
+          .trim()
+          .split("\n")
+          .slice(1)
+          .map(row => row.split(","));
+      }
+
+      function parseDate(dateStr) {
+        // Parse "16/01/2026 19.53.12" format to YYYY-MM-DD
+        const datePart = dateStr.split(' ')[0]; // "16/01/2026"
+        const [day, month, year] = datePart.split('/');
+        return `${year}-${month}-${day}`;
+      }
+
+      function getAllDatesInRange(startDate, endDate) {
+        const dates = [];
+        const current = new Date(startDate + 'T00:00:00');
+        const end = new Date(endDate + 'T00:00:00');
+        
+        while (current <= end) {
+          const year = current.getFullYear();
+          const month = String(current.getMonth() + 1).padStart(2, '0');
+          const day = String(current.getDate()).padStart(2, '0');
+          dates.push(`${year}-${month}-${day}`);
+          current.setDate(current.getDate() + 1);
+        }
+        
+        return dates;
+      }
+
+      function updateFromServer() {
+        fetch(CSV_URL)
+          .then(r => r.text())
+          .then(text => {
+            rawData = parseCSV(text);
+
+            // TOTAL
+            const totalBeers = rawData.reduce((s, r) => s + Number(r[2]), 0);
+            setTotal(totalBeers);
+
+            // LEADERBOARD - Show all 10 people
+            const perPerson = {};
+            rawData.forEach(r => {
+              const name = r[1];
+              const beers = Number(r[2]);
+              perPerson[name] = (perPerson[name] || 0) + beers;
+            });
+
+            const leaderboard = document.getElementById("leaderboard");
+            leaderboard.innerHTML = "";
+            const medals = ["🥇", "🥈", "🥉"];
+            
+            Object.entries(perPerson)
+              .sort((a, b) => b[1] - a[1])
+              .forEach(([name, beers], i) => {
+                const li = document.createElement("li");
+                const medal = i < 3 ? medals[i] : "";
+                li.textContent = `${medal} ${getDisplayName(name)}: ${beers}`;
+                leaderboard.appendChild(li);
+              });
+
+            updateChart();
+          });
+      }
+
+      function updateChart() {
+        if (!rawData.length) return;
+
+        let datasets = [];
+        let chartTypeConfig = chartType === 'daily' ? 'bar' : 'line';
+
+        // Get all dates from data
+        const observedDates = new Set();
+        rawData.forEach(r => observedDates.add(parseDate(r[0])));
+        const sortedObserved = Array.from(observedDates).sort();
+        
+        // Create full date range
+        const startDate = sortedObserved[0];
+        const endDate = sortedObserved[sortedObserved.length - 1];
+        const allDays = getAllDatesInRange(startDate, endDate);
+
+        // Show total if toggled
+        if (showTotal) {
+          const perDay = {};
+          rawData.forEach(r => {
+            const date = parseDate(r[0]);
+            perDay[date] = (perDay[date] || 0) + Number(r[2]);
+          });
+
+          if (chartType === 'cumulative') {
+            let sum = 0;
+            const cumulative = allDays.map(d => {
+              sum += (perDay[d] || 0);
+              return sum;
+            });
+            datasets.push({
+              label: "Total",
+              data: cumulative,
+              tension: 0.3,
+              borderColor: '#000000',
+              backgroundColor: 'transparent',
+              borderWidth: 3
+            });
+          } else {
+            datasets.push({
+              label: "Total",
+              data: allDays.map(d => perDay[d] || 0),
+              backgroundColor: '#000000'
+            });
+          }
+        }
+
+        // Show selected people
+        if (selectedPeople.size > 0) {
+          selectedPeople.forEach((person) => {
+            const perDay = {};
+            rawData.forEach(r => {
+              if (r[1] === person) {
+                const date = parseDate(r[0]);
+                perDay[date] = (perDay[date] || 0) + Number(r[2]);
+              }
+            });
+
+            if (chartType === 'cumulative') {
+              let sum = 0;
+              const cumulative = allDays.map(d => {
+                sum += (perDay[d] || 0);
+                return sum;
+              });
+              datasets.push({
+                label: getDisplayName(person),
+                data: cumulative,
+                tension: 0.3,
+                borderColor: COLORS[PEOPLE.indexOf(person) % COLORS.length],
+                backgroundColor: 'transparent'
+              });
+            } else {
+              datasets.push({
+                label: getDisplayName(person),
+                data: allDays.map(d => perDay[d] || 0),
+                backgroundColor: COLORS[PEOPLE.indexOf(person) % COLORS.length]
+              });
+            }
+          });
+        }
+
+        // If nothing is selected, show total by default
+        if (!showTotal && selectedPeople.size === 0) {
+          const perDay = {};
+          rawData.forEach(r => {
+            const date = parseDate(r[0]);
+            perDay[date] = (perDay[date] || 0) + Number(r[2]);
+          });
+
+          if (chartType === 'cumulative') {
+            let sum = 0;
+            const cumulative = allDays.map(d => {
+              sum += (perDay[d] || 0);
+              return sum;
+            });
+            datasets.push({
+              label: "Total fadøl",
+              data: cumulative,
+              tension: 0.3,
+              borderColor: '#36A2EB',
+              backgroundColor: 'rgba(54, 162, 235, 0.2)'
+            });
+          } else {
+            datasets.push({
+              label: "Fadøl per dag",
+              data: allDays.map(d => perDay[d] || 0),
+              backgroundColor: '#36A2EB'
+            });
+          }
+        }
 
         if (chart) chart.destroy();
-        chart = new Chart(
-          document.getElementById("beerChart"),
-          {
-            type: "line",
-            data: {
-              labels: days,
-              datasets: [{
-                label: "Total fadøl",
-                data: cumulative,
-                tension: 0.3
-              }]
+        chart = new Chart(document.getElementById("beerChart"), {
+          type: chartTypeConfig,
+          data: {
+            labels: allDays,
+            datasets: datasets
+          },
+          options: {
+            maintainAspectRatio: false,
+            responsive: true,
+            scales: {
+              y: {
+                ticks: {
+                  precision: 0
+                }
+              },
+              x: {
+                ticks: {
+                  maxTicksLimit: 8,
+                  autoSkip: true,
+                  maxRotation: 45,
+                  minRotation: 45
+                }
+              }
             }
           }
-        );
-    });
-  }
-  
+        });
+      }
 
-  
-  function setTotal(value) {
-    total = value;
-    document.getElementById("total").textContent = total;
-  }
+      function setTotal(value) {
+        total = value;
+        document.getElementById("total").textContent = total;
+      }
 
+      function addBeer() {
+        if (!currentName) {
+          alert("Vælg dit navn først 🍺");
+          return;
+        }
+        
+        setTotal(total + 1);
 
-  function addBeer() {
-    if (!currentName) {
-      alert("Vælg dit navn først 🍺");
-      return;
-    }
+        fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            name: currentName,
+            beers: 1
+          })
+        }).then(updateFromServer);
+      }
 
-  
-    setTotal(total + 1); // optimistic UI
+      function openRenameModal() {
+        const modal = document.getElementById("rename-modal");
+        const container = document.getElementById("rename-inputs");
+        container.innerHTML = "";
+        
+        PEOPLE.forEach(name => {
+          const row = document.createElement("div");
+          row.className = "rename-row";
+          
+          const label = document.createElement("label");
+          label.textContent = name + ":";
+          
+          const input = document.createElement("input");
+          input.type = "text";
+          input.value = getDisplayName(name);
+          input.dataset.dbName = name;
+          
+          row.appendChild(label);
+          row.appendChild(input);
+          container.appendChild(row);
+        });
+        
+        modal.classList.add("show");
+      }
 
-    fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        name: currentName,
-        beers: 1
-      })
-    }).then(updateFromServer);
-  }
+      function closeRenameModal() {
+        const modal = document.getElementById("rename-modal");
+        modal.classList.remove("show");
+      }
 
+      function saveRenames() {
+        const inputs = document.querySelectorAll("#rename-inputs input");
+        inputs.forEach(input => {
+          const dbName = input.dataset.dbName;
+          const newDisplayName = input.value.trim() || dbName;
+          displayNames[dbName] = newDisplayName;
+        });
+        
+        saveDisplayNames();
+        renderPeople();
+        renderPersonToggles();
+        updateFromServer(); // Refresh to update leaderboard and chart
+        closeRenameModal();
+      }
 
-
-
-
-    
-  </script>
-
-</div>
+      renderPeople();
+      renderPersonToggles();
+      updateFromServer();
+    </script>
+  </div>
 </body>
+</html>
