@@ -24,15 +24,41 @@
       margin: 1rem auto;
     }
 
+    /* ===== Base button normalization ===== */
+  .btn {
+    appearance: none;
+    -webkit-appearance: none;
+
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+
+    cursor: pointer;
+    text-align: center;
+
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+
     .person-btn {
       padding: 0.6rem;
       font-size: 1rem;
-      cursor: pointer;
       border: 2px solid #ddd;
       background: white;
-      color: #222;
       border-radius: 6px;
+      color: #222;
     }
+
     
     .person-btn.active {
       background: #222;
@@ -50,14 +76,17 @@
       padding: 1rem;
       font-size: 1.4rem;
       font-weight: bold;
+
       border-radius: 12px;
       border: none;
-      cursor: pointer;
+
       background: linear-gradient(135deg, #f6c453, #f09c2d);
       color: #222;
+
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
       transition: transform 0.05s ease, box-shadow 0.05s ease;
     }
+
 
     #add-beer-btn:active {
       transform: translateY(2px);
@@ -119,9 +148,10 @@
       border: 2px solid #ddd;
       background: white;
       border-radius: 6px;
-      cursor: pointer;
       font-size: 0.9rem;
+      color: #222;
     }
+
 
     .toggle-btn.active {
       background: #222;
@@ -146,6 +176,7 @@
       background: white;
       border-radius: 6px;
       cursor: pointer;
+      color: black;
     }
 
     #rename-modal {
@@ -247,13 +278,13 @@
 
     <div id="chart-controls">
       <div class="control-group">
-        <button class="toggle-btn active" onclick="setChartType('cumulative')">Kumulativ</button>
-        <button class="toggle-btn" onclick="setChartType('daily')">Per dag</button>
+        <button class="btn toggle-btn active" onclick="setChartType('cumulative')">Kumulativ</button>
+        <button class="btn toggle-btn" onclick="setChartType('daily')">Per dag</button>
       </div>
       
       <div class="control-group">
         <label>Vis data:</label>
-        <button class="toggle-btn" id="show-total-btn" onclick="toggleTotal()">Total</button>
+        <button class="btn toggle-btn" id="show-total-btn" onclick="toggleTotal()">Total</button>
         <div id="person-toggles" style="display: inline;"></div>
       </div>
     </div>
@@ -267,8 +298,8 @@
         <h3 style="margin-top: 0;">Rediger navne</h3>
         <div id="rename-inputs"></div>
         <div class="modal-buttons">
-          <button class="cancel-btn" onclick="closeRenameModal()">Annuller</button>
-          <button class="save-btn" onclick="saveRenames()">Gem</button>
+          <button class="btn cancel-btn" onclick="closeRenameModal()">Annuller</button>
+          <button class="btn save-btn" onclick="saveRenames()">Gem</button>
         </div>
       </div>
     </div>
@@ -328,7 +359,7 @@
         PEOPLE.forEach(name => {
           const btn = document.createElement("button");
           btn.textContent = getDisplayName(name);
-          btn.className = "person-btn";
+          btn.className = "btn person-btn";
           if (name === currentName) {
             btn.classList.add("active");
           }
