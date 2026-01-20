@@ -303,15 +303,9 @@
   </style>
 </head>
 <body>
-  <div id="language-selector">
-    <button class="btn flag-btn active" onclick="setLanguage('da')" title="Dansk">🇩🇰</button>
-    <button class="btn flag-btn" onclick="setLanguage('en')" title="English">🇬🇧</button>
-    <button class="btn flag-btn" onclick="setLanguage('de')" title="Deutsch">🇩🇪</button>
-    <button class="btn flag-btn" onclick="setLanguage('fr')" title="Français">🇫🇷</button>
-  </div>
 
   <div id="app">
-    <h1 data-i18n="title">🍺 Fadøl Tracker</h1>
+    <h1 data-i18n="title">Fadøl Tracker</h1>
 
     <h3 data-i18n="selectName">Vælg navn</h3>
     <div id="people"></div>
@@ -362,6 +356,14 @@
       <button id="rename-btn" onclick="openRenameModal()">
         <span data-i18n="editNames" class="btn">✏️ Rediger navne</span>
       </button>
+    </div>
+
+
+    <div id="language-selector">
+      <button class="btn flag-btn active" onclick="setLanguage('da')" title="Dansk">🇩🇰</button>
+      <button class="btn flag-btn" onclick="setLanguage('en')" title="English">🇬🇧</button>
+      <button class="btn flag-btn" onclick="setLanguage('de')" title="Deutsch">🇩🇪</button>
+      <button class="btn flag-btn" onclick="setLanguage('fr')" title="Français">🇫🇷</button>
     </div>
 
     <div id="rename-modal">
