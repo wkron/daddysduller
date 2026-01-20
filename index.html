@@ -20,6 +20,32 @@
       }
     }
 
+    /* ==================== BASE BUTTON NORMALIZATION ==================== */
+    .btn {
+      -webkit-appearance: none;
+      appearance: none;
+
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+
+      cursor: pointer;
+      text-align: center;
+
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+
     /* ==================== LANGUAGE SELECTOR ==================== */
     #language-selector {
       position: absolute;
@@ -61,11 +87,12 @@
     .person-btn {
       padding: 0.6rem;
       font-size: 1rem;
-      cursor: pointer;
       border: 2px solid #ddd;
       background: white;
       border-radius: 6px;
+      color: #222;
     }
+
     
     .person-btn.active {
       background: #222;
@@ -86,7 +113,6 @@
       font-weight: bold;
       border-radius: 12px;
       border: none;
-      cursor: pointer;
       background: linear-gradient(135deg, #f6c453, #f09c2d);
       color: #222;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
@@ -172,9 +198,10 @@
       border: 2px solid #ddd;
       background: white;
       border-radius: 6px;
-      cursor: pointer;
       font-size: 0.9rem;
+      color: #222;
     }
+
 
     .toggle-btn.active {
       background: #222;
@@ -277,10 +304,10 @@
 </head>
 <body>
   <div id="language-selector">
-    <button class="flag-btn active" onclick="setLanguage('da')" title="Dansk">🇩🇰</button>
-    <button class="flag-btn" onclick="setLanguage('en')" title="English">🇬🇧</button>
-    <button class="flag-btn" onclick="setLanguage('de')" title="Deutsch">🇩🇪</button>
-    <button class="flag-btn" onclick="setLanguage('fr')" title="Français">🇫🇷</button>
+    <button class="btn flag-btn active" onclick="setLanguage('da')" title="Dansk">🇩🇰</button>
+    <button class="btn flag-btn" onclick="setLanguage('en')" title="English">🇬🇧</button>
+    <button class="btn flag-btn" onclick="setLanguage('de')" title="Deutsch">🇩🇪</button>
+    <button class="btn flag-btn" onclick="setLanguage('fr')" title="Français">🇫🇷</button>
   </div>
 
   <div id="app">
@@ -314,17 +341,17 @@
 
     <div id="chart-controls">
       <div class="control-group">
-        <button class="toggle-btn active" onclick="setChartType('cumulative')">
+        <button class="btn toggle-btn active" onclick="setChartType('cumulative')">
           <span data-i18n="cumulative">Kumulativ</span>
         </button>
-        <button class="toggle-btn" onclick="setChartType('daily')">
+        <button class="btn toggle-btn" onclick="setChartType('daily')">
           <span data-i18n="perDay">Per dag</span>
         </button>
       </div>
       
       <div class="control-group">
         <label data-i18n="showData">Vis data:</label>
-        <button class="toggle-btn" id="show-total-btn" onclick="toggleTotal()">
+        <button class="btn toggle-btn" id="show-total-btn" onclick="toggleTotal()">
           <span data-i18n="total">Total</span>
         </button>
         <div id="person-toggles" style="display: inline;"></div>
@@ -342,10 +369,10 @@
         <h3 style="margin-top: 0;" data-i18n="editNames">Rediger navne</h3>
         <div id="rename-inputs"></div>
         <div class="modal-buttons">
-          <button class="cancel-btn" onclick="closeRenameModal()">
+          <button class="btn cancel-btn" onclick="closeRenameModal()">
             <span data-i18n="cancel">Annuller</span>
           </button>
-          <button class="save-btn" onclick="saveRenames()">
+          <button class="btn save-btn" onclick="saveRenames()">
             <span data-i18n="save">Gem</span>
           </button>
         </div>
@@ -597,7 +624,7 @@
       PEOPLE.forEach(name => {
         const btn = document.createElement("button");
         btn.textContent = getDisplayName(name);
-        btn.className = "person-btn";
+        btn.className = "btn person-btn";
         if (name === state.currentName) {
           btn.classList.add("active");
         }
