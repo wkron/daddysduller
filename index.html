@@ -47,13 +47,50 @@
 
 
     /* ==================== LANGUAGE SELECTOR ==================== */
-    #language-selector {
+    #language-wrapper {
       position: absolute;
-      top: 1rem;
-      right: 1rem;
+      top: 0.75rem;
+      right: 0.75rem;
+    }
+
+    /* 🌐-knap */
+    .lang-toggle {
+      font-size: 1.4rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 6px;
+      background: #f5f5f5;
+    }
+
+    /* Flag-container */
+    #language-selector {
       display: flex;
       gap: 0.5rem;
+      margin-top: 0.5rem;
     }
+
+    /* Mobil: skjul flags som default */
+    @media (max-width: 480px) {
+      #language-selector {
+        display: none;
+        flex-direction: column;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      }
+
+      #language-selector.show {
+        display: flex;
+      }
+    }
+
+    /* Desktop: vis altid flags */
+    @media (min-width: 481px) {
+      .lang-toggle {
+        display: none;
+      }
+    }
+
 
     .flag-btn {
       font-size: 1.5rem;
@@ -353,17 +390,21 @@
     </div>
 
     <div id="rename-container">
-      <button id="rename-btn" onclick="openRenameModal()">
-        <span data-i18n="editNames" class="btn">✏️ Rediger navne</span>
+      <button id="rename-btn" class="btn" onclick="openRenameModal()">
+        <span data-i18n="editNames">✏️ Rediger navne</span>
       </button>
     </div>
 
 
-    <div id="language-selector">
-      <button class="btn flag-btn active" onclick="setLanguage('da')" title="Dansk">🇩🇰</button>
-      <button class="btn flag-btn" onclick="setLanguage('en')" title="English">🇬🇧</button>
-      <button class="btn flag-btn" onclick="setLanguage('de')" title="Deutsch">🇩🇪</button>
-      <button class="btn flag-btn" onclick="setLanguage('fr')" title="Français">🇫🇷</button>
+    <div id="language-wrapper">
+      <button class="btn lang-toggle" onclick="toggleLanguageMenu()">🌐</button>
+
+      <div id="language-selector">
+        <button class="btn flag-btn active" onclick="setLanguage('da')">🇩🇰</button>
+        <button class="btn flag-btn" onclick="setLanguage('en')">🇬🇧</button>
+        <button class="btn flag-btn" onclick="setLanguage('de')">🇩🇪</button>
+        <button class="btn flag-btn" onclick="setLanguage('fr')">🇫🇷</button>
+      </div>
     </div>
 
     <div id="rename-modal">
@@ -401,7 +442,7 @@
     // ==================== TRANSLATIONS ====================
     const translations = {
       da: {
-        title: "🍺 Fadøl Tracker",
+        title: "Fadøl Tracker",
         selectName: "Vælg navn",
         addBeer: "🍺 +1 fadøl",
         totalBeers: "Total fadøl",
@@ -418,7 +459,7 @@
         streak: "Streak! Der er blevet drukket fadøl {days} dage i træk 🔥"
       },
       en: {
-        title: "🍺 Draft Beer Tracker",
+        title: "Draft Beer Tracker",
         selectName: "Select name",
         addBeer: "🍺 +1 beer",
         totalBeers: "Total beers",
@@ -435,7 +476,7 @@
         streak: "Streak! Beers have been consumed for {days} days in a row 🔥"
       },
       de: {
-        title: "🍺 Bier vom Fass Tracker",
+        title: "Bier vom Fass Tracker",
         selectName: "Name wählen",
         addBeer: "🍺 +1 Bier",
         totalBeers: "Biere insgesamt",
@@ -452,7 +493,7 @@
         streak: "Serie! {days} Tage in Folge Bier getrunken 🔥"
       },
       fr: {
-        title: "🍺 Tracker de Bière Pression",
+        title: "Tracker de Bière Pression",
         selectName: "Sélectionner un nom",
         addBeer: "🍺 +1 bière",
         totalBeers: "Bières totales",
@@ -928,6 +969,13 @@
       const modal = document.getElementById("rename-modal");
       modal.classList.remove("show");
     }
+
+    function toggleLanguageMenu() {
+      document
+        .getElementById('language-selector')
+        .classList.toggle('show');
+    }
+
 
     function saveRenames() {
       const inputs = document.querySelectorAll("#rename-inputs input");
